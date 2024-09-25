@@ -119,6 +119,38 @@ func (c *Cache) GetString(params string) (string, error) {
 	return "", nil
 }
 
+func (c *Cache) Delete(params string) error {
+	// 构建缓存键
+	cacheKey := NewKeyBuilder().SetParams(params).Build()
+
+	// 检查缓存中是否存在该键
+	value, ok := c.data.Load(cacheKey)
+	if !ok {
+		return nil
+	}
+
+	// 删除缓存中的键值对
+	c.data.Delete(cacheKey)
+
+	// 更新缓存大小
+	if item, ok := value.(*Item); ok {
+		c.size -= item.size
+	}
+
+	// 更新keyList
+	c.keyMutex.Lock()
+	defer c.keyMutex.Unlock()
+	for i, entry := range c.keyList {
+		if entry.key == cacheKey {
+			c.keyList = append(c.keyList[:i], c.keyList[i+1:]...)
+			break
+		}
+	}
+
+	log.Printf("deleted cache key: %s", params)
+	return nil
+}
+
 // 更新keyList，将新的key插入到合适的位置
 func (c *Cache) updateKeyList(key interface{}) {
 	c.keyMutex.Lock()

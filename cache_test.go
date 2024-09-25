@@ -94,3 +94,23 @@ func TestCache(t *testing.T) {
 	value, err = GlobalCache.GetString(key)
 	fmt.Println(value)
 }
+
+func TestDeleteKey(t *testing.T) {
+	// 初始化缓存和监控器
+	err := Init(Config{
+		MaxSize:  100,
+		PlanTime: "18:30:00",
+	})
+	if err != nil {
+		t.Fatalf("Init failed: %v", err)
+	}
+	var res string
+	err = CacheAnything("test", CaseHandler, "hello world", &res, 10*time.Second)
+	if err != nil {
+		t.Fatalf("CacheAnything failed: %v", err)
+	}
+	err = DeleteKey("test")
+	if err != nil {
+		t.Fatalf("Delete failed: %v", err)
+	}
+}

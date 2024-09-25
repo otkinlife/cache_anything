@@ -18,3 +18,7 @@ func CacheAnything(key string, handler Handler, params interface{}, results inte
 	// 异步写缓存写入缓存
 	return GlobalCache.SetDataWithJsonWithExpiration(key, results, expire)
 }
+
+func DeleteKey(key string) error {
+	return GlobalCache.Delete(key)
+}
